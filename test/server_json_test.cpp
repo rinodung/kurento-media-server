@@ -284,6 +284,26 @@ ClientHandler::check_create_pipeline_call()
   BOOST_CHECK (response.isMember ("result") );
   BOOST_CHECK (response["result"].isMember ("type") );
   BOOST_CHECK (response["result"]["type"].asString () == "WebRtcEndpoint" );
+  BOOST_CHECK (response["result"].isMember ("qualifiedType") );
+  BOOST_CHECK (response["result"]["qualifiedType"].asString () ==
+               "kurento.WebRtcEndpoint" );
+  BOOST_CHECK (response["result"].isMember ("hierarchy") );
+  Json::Value hierarchy = response["result"]["hierarchy"];
+  std::vector <std::string> expected_hierarchy;
+
+  expected_hierarchy.push_back ("kurento.BaseRtpEndpoint");
+  expected_hierarchy.push_back ("kurento.SdpEndpoint");
+  expected_hierarchy.push_back ("kurento.SessionEndpoint");
+  expected_hierarchy.push_back ("kurento.Endpoint");
+  expected_hierarchy.push_back ("kurento.MediaElement");
+  expected_hierarchy.push_back ("kurento.MediaObject");
+
+  BOOST_REQUIRE (hierarchy.isArray() );
+
+  for (uint i = 0; i < hierarchy.size(); i++) {
+    BOOST_REQUIRE (hierarchy[i].isString() );
+    BOOST_CHECK (hierarchy[i].asString() == expected_hierarchy[i]);
+  }
 
   std::string sessionId = "123456";
   request.removeMember ("id");

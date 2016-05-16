@@ -15,6 +15,7 @@
 
 #include "CacheEntry.hpp"
 #include <gst/gst.h>
+#include <config.h>
 
 #define GST_CAT_DEFAULT kurento_cache_entry
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -26,6 +27,7 @@ using namespace Glib::Threads;
 #include <type_traits>
 #include <sigc++/sigc++.h>
 #include <event2/event_struct.h>
+#if FIX_SIGC
 namespace sigc
 {
 template <typename Functor>
@@ -37,12 +39,13 @@ struct functor_trait<Functor, false> {
   typedef Functor functor_type;
 };
 }
+#endif
 
 namespace kurento
 {
 
 CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
-                        std::string requestId, std::string response)
+                        std::string requestId, Json::Value &response)
 {
   this->response = response;
   this->requestId = requestId;
@@ -62,7 +65,7 @@ CacheEntry::CacheEntry (unsigned int timeout, std::string sessionId,
   source->attach();
 }
 
-std::string
+Json::Value &
 CacheEntry::getResponse (void)
 {
   return response;
